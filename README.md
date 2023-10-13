@@ -1,3 +1,8 @@
+# my edits:
+original contest repo: https://github.com/ton-community/tact-challenge
+
+---
+
 # 🏆 Welcome to Tact Challenge
 ### by TON Foundation
 
