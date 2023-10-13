@@ -112,3 +112,4 @@ Stay in the loop and engage with other developers:
 - [TON Dev Chat (EN)](https://t.me/tondev_eng)
 - [TON Dev Chat (中文)](https://t.me/tondev_zh)
 - [TON Dev Chat (РУ)](https://t.me/tondev)
+
