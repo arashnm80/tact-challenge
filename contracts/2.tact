@@ -34,7 +34,7 @@ contract Task2 with Deployable {
         to: msg.sender,
         value: context().value,
         mode: SendRemainingValue + SendIgnoreErrors,
-        body: "increment".asComment()
+        body: SomeMessage{arg1: 123, arg2: 1234}.toCell()
     });
   }
 
