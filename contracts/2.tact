@@ -43,10 +43,8 @@ contract Task2 with Deployable {
     send(SendParameters{
         to: self.admin,
         value: context().value,
-            mode: SendIgnoreErrors,
-            // code: init.code,
-            // data: init.data,
-            body: "identify".asComment()  
+        mode: SendIgnoreErrors,
+        body: beginCell().storeAddress(context().sender).storeRef(msg.asCell()).endCell() 
     });
   }
 }
