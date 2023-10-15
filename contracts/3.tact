@@ -67,11 +67,53 @@ contract Task3 with Deployable {
   }
 
   receive(msg: TokenNotification) {
+    // we are doing x->y conversion
+    let jettonAddressX: Address = msg.from;
+    let xAmount: Int = msg.amount;
+    let jettonAddressY: Address = newAddress(0, 0);
+    let yAmount: Int = 0;
+
+    // unknown jetton throws error
+    require(jettonAddressX == self.jettonAddressA || jettonAddressX == self.jettonAddressB, "invalid jetton");
+
+    if(jettonAddressX == self.jettonAddressA){
+      jettonAddressY = self.jettonAddressB;
+    } else if(jettonAddressX == self.jettonAddressB) {
+      jettonAddressY = self.jettonAddressA;
+    }
+    
+    let amountOfXJettonToSend: Int = (xAmount * self.decimal / yAmount) * xAmount / self.decimal;
+
+    send(SendParameters{
+      to: sender(),
+      value: 0, 
+      mode: SendIgnoreErrors, 
+      bounce: true, 
+      body: TokenTransfer{ queryId: msg.queryId,
+                            amount: yAmount,
+                            destination: jettonAddressY,
+                            responseDestination: newAddress(0, 0),
+                            customPayload: emptyCell(),
+                            forwardTonAmount: yAmount,
+                            forwardPayload: msg.forwardPayload }.toCell()
+    });
   } 
   
-  get fun price(jetton: Address): Int { 
+  get fun price(jetton: Address): Int {
+    if(jetton == self.jettonAddressA){
+      let aPrice: Int = self.aAmount * self.decimal / self.bAmount;
+      return aPrice;
+    } else if(jetton == self.jettonAddressB){
+      let bPrice: Int = self.bAmount * self.decimal / self.aAmount;
+      return bPrice;
+    }
   }
   
   get fun balance(jetton: Address): Int { 
+    if(jetton == self.jettonAddressA){
+      return self.aAmount;
+    } else if(jetton == self.jettonAddressB){
+      return self.bAmount;
+    }
   }
 }
