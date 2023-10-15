@@ -27,7 +27,7 @@ contract Task2 with Deployable {
   
   receive(msg: Refund) {
     // check for admin priviledges
-    require(sender() == self.admin, "");
+    require(sender() == self.admin, "-1");
 
     // send refund to user
     send(SendParameters{
