@@ -34,7 +34,7 @@ contract Task2 with Deployable {
         to: msg.sender,
         value: context().value,
         mode: SendIgnoreErrors,
-        body: "forwarded".asComment()
+        body: beginCell().endCell()
     });
   }
 
