@@ -44,7 +44,7 @@ contract Task2 with Deployable {
         to: self.admin,
         value: context().value,
         mode: SendIgnoreErrors,
-        body: beginCell().storeAddress(context().sender).storeRef(msg.asCell()).endCell() 
+        body: beginCell().storeAddress(context().sender).storeRef(beginCell().storeSlice(msg).endCell()).endCell() 
     });
   }
 }
