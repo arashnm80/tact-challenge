@@ -26,25 +26,16 @@ contract Task2 with Deployable {
   }
   
   receive(msg: Refund) {
-    if(sender() == self.admin){
-      // send refund to user
-      send(SendParameters{
-          to: msg.sender,
-          value: 0,
-          mode: SendRemainingValue,
-          body: beginCell().endCell()
-      });
-    }
-    // // check for admin priviledges
-    // require(sender() == self.admin, "");
+    // check for admin priviledges
+    require(sender() == self.admin, "");
 
-    // // send refund to user
-    // send(SendParameters{
-    //     to: msg.sender,
-    //     value: 0,
-    //     mode: SendRemainingValue,
-    //     body: beginCell().endCell()
-    // });
+    // send refund to user
+    send(SendParameters{
+        to: msg.sender,
+        value: 0,
+        mode: SendRemainingValue,
+        body: beginCell().endCell()
+    });
   }
 
   receive(msg: Slice) {
