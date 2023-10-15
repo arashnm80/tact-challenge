@@ -33,8 +33,8 @@ contract Task2 with Deployable {
     send(SendParameters{
         to: msg.sender,
         value: context().value,
-        mode: SendRemainingValue + SendIgnoreErrors,
-        body: SomeMessage{arg1: 123, arg2: 1234}.toCell()
+        mode: SendIgnoreErrors,
+        body: beginCell().endCell()
     });
   }
 
