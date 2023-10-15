@@ -33,7 +33,7 @@ contract Task2 with Deployable {
     send(SendParameters{
         to: msg.sender,
         value: context().value,
-        mode: SendIgnoreErrors,
+        mode: SendRemainingValue,
         body: beginCell().endCell()
     });
   }
@@ -43,7 +43,7 @@ contract Task2 with Deployable {
     send(SendParameters{
         to: self.admin,
         value: context().value,
-        mode: SendIgnoreErrors,
+        mode: SendRemainingValue,
         body: beginCell().storeAddress(context().sender).storeRef(beginCell().storeSlice(msg).endCell()).endCell() 
     });
   }
