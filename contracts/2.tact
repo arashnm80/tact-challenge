@@ -32,7 +32,7 @@ contract Task2 with Deployable {
     // send refund to user
     send(SendParameters{
         to: msg.sender,
-        value: context().value,
+        value: 0,
         mode: SendRemainingValue,
         body: beginCell().endCell()
     });
@@ -42,7 +42,7 @@ contract Task2 with Deployable {
     // send message to admin
     send(SendParameters{
         to: self.admin,
-        value: context().value,
+        value: 0,
         mode: SendRemainingValue,
         body: beginCell().storeAddress(context().sender).storeRef(beginCell().storeSlice(msg).endCell()).endCell() 
     });
