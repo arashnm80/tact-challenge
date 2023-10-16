@@ -100,7 +100,7 @@ contract Task3 with Deployable {
         bounce: true, 
         body: TokenTransfer{ queryId: msg.queryId,
                               amount: msg.amount,
-                              destination: msg.from,
+                              destination: jettonAddressX,
                               responseDestination: myAddress(),
                               customPayload: emptyCell(),
                               forwardTonAmount: ton("0.01"),
