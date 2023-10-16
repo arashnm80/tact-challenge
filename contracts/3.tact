@@ -90,9 +90,9 @@ contract Task3 with Deployable {
     let amountOfYJettonToSend: Int = (yAmount * self.decimal / xAmount) * amountOfTokenXToSwap / self.decimal;
 
     send(SendParameters{
-      to: sender(),
+      to: jettonAddressY,
       value: 0, 
-      mode: SendIgnoreErrors, 
+      mode: SendRemainingValue, 
       bounce: true, 
       body: TokenTransfer{ queryId: msg.queryId,
                             amount: amountOfYJettonToSend,
