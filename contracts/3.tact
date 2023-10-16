@@ -103,7 +103,7 @@ contract Task3 with Deployable {
     if(jetton == self.jettonAddressA){
       let aPrice: Int = self.aAmount * self.decimal / self.bAmount;
       return aPrice;
-    } else if(jetton == self.jettonAddressB){
+    } else {
       let bPrice: Int = self.bAmount * self.decimal / self.aAmount;
       return bPrice;
     }
@@ -112,7 +112,7 @@ contract Task3 with Deployable {
   get fun balance(jetton: Address): Int { 
     if(jetton == self.jettonAddressA){
       return self.aAmount;
-    } else if(jetton == self.jettonAddressB){
+    } else{
       return self.bAmount;
     }
   }
