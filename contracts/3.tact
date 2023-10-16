@@ -102,24 +102,41 @@ contract Task3 with Deployable {
                               amount: msg.amount,
                               destination: jettonAddressX,
                               responseDestination: myAddress(),
-                              customPayload: emptyCell(),
+                              customPayload: null,
                               forwardTonAmount: ton("0.01"),
                               forwardPayload: emptySlice() }.toCell()
       });
     } else { // swap jettons
-      send(SendParameters{
-        to: jettonAddressY,
-        value: 0, 
-        mode: SendRemainingValue, 
-        bounce: true, 
-        body: TokenTransfer{ queryId: msg.queryId,
-                              amount: amountOfYJettonToSend,
-                              destination: msg.from,
-                              responseDestination: myAddress(),
-                              customPayload: emptyCell(),
-                              forwardTonAmount: ton("0.01"),
-                              forwardPayload: emptySlice() }.toCell()
-      });
+      if (yAmount >= amountOfYJettonToSend) { // enough jettons in contract
+        send(SendParameters{
+          to: jettonAddressY,
+          value: 0, 
+          mode: SendRemainingValue, 
+          bounce: true, 
+          body: TokenTransfer{ queryId: msg.queryId,
+                                amount: amountOfYJettonToSend,
+                                destination: msg.from,
+                                responseDestination: myAddress(),
+                                customPayload: null,
+                                forwardTonAmount: ton("0.01"),
+                                forwardPayload: emptySlice() }.toCell()
+        });
+      } else { // jettons are not enough, return back to user
+        send(SendParameters{
+          to: jettonAddressX,
+          value: 0, 
+          mode: SendRemainingValue, 
+          bounce: true, 
+          body: TokenTransfer{ queryId: msg.queryId,
+                                amount: amountOfTokenXToSwap,
+                                destination: msg.from,
+                                responseDestination: myAddress(),
+                                customPayload: null,
+                                forwardTonAmount: ton("0.01"),
+                                forwardPayload: emptySlice() }.toCell()
+        });
+      }
+
     }
   } 
   
