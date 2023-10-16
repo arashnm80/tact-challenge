@@ -69,7 +69,7 @@ contract Task3 with Deployable {
 
   receive(msg: TokenNotification) {
     // we are doing x->y conversion
-    let jettonAddressX: Address = msg.from;
+    let jettonAddressX: Address = sender();
     let amountOfTokenXToSwap: Int = msg.amount;
     let jettonAddressY: Address = newAddress(0, 0);
     let xAmount: Int = 0;
