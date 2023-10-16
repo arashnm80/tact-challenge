@@ -76,13 +76,15 @@ contract Task3 with Deployable {
     let yAmount: Int = 0;
 
     // unknown jetton throws error
-    require(jettonAddressX == self.jettonAddressA || jettonAddressX == self.jettonAddressB, "invalid jetton");
+    require((jettonAddressX == self.jettonAddressA) || (jettonAddressX == self.jettonAddressB), "invalid jetton");
 
     if (jettonAddressX == self.jettonAddressA) {
+      // x is A, y is B
       jettonAddressY = self.jettonAddressB;
       yAmount = self.bAmount;
       xAmount = self.aAmount;
     } else {
+      // x is B, y is A
       jettonAddressY = self.jettonAddressA;
       yAmount = self.aAmount;
       xAmount = self.bAmount;
@@ -90,19 +92,35 @@ contract Task3 with Deployable {
     
     let amountOfYJettonToSend: Int = (yAmount * self.decimal / xAmount) * amountOfTokenXToSwap / self.decimal;
 
-    send(SendParameters{
-      to: jettonAddressY,
-      value: 0, 
-      mode: SendRemainingValue, 
-      bounce: true, 
-      body: TokenTransfer{ queryId: msg.queryId,
-                            amount: amountOfYJettonToSend,
-                            destination: msg.from,
-                            responseDestination: myAddress(),
-                            customPayload: emptyCell(),
-                            forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice() }.toCell()
-    });
+    if (sender() == self.owner){ // admin is sending jettons
+      send(SendParameters{
+        to: jettonAddressX,
+        value: 0, 
+        mode: SendRemainingValue, 
+        bounce: true, 
+        body: TokenTransfer{ queryId: msg.queryId,
+                              amount: msg.amount,
+                              destination: msg.from,
+                              responseDestination: myAddress(),
+                              customPayload: emptyCell(),
+                              forwardTonAmount: ton("0.01"),
+                              forwardPayload: emptySlice() }.toCell()
+      });
+    } else { // swap jettons
+      send(SendParameters{
+        to: jettonAddressY,
+        value: 0, 
+        mode: SendRemainingValue, 
+        bounce: true, 
+        body: TokenTransfer{ queryId: msg.queryId,
+                              amount: amountOfYJettonToSend,
+                              destination: msg.from,
+                              responseDestination: myAddress(),
+                              customPayload: emptyCell(),
+                              forwardTonAmount: ton("0.01"),
+                              forwardPayload: emptySlice() }.toCell()
+      });
+    }
   } 
   
   get fun price(jetton: Address): Int { 
