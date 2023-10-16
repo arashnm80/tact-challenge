@@ -69,20 +69,25 @@ contract Task3 with Deployable {
   receive(msg: TokenNotification) {
     // we are doing x->y conversion
     let jettonAddressX: Address = msg.from;
-    let xAmount: Int = msg.amount;
+    let amountOfTokenXToSwap: Int = msg.amount;
     let jettonAddressY: Address = newAddress(0, 0);
+    let xAmount: Int = 0;
     let yAmount: Int = 0;
 
     // unknown jetton throws error
     require(jettonAddressX == self.jettonAddressA || jettonAddressX == self.jettonAddressB, "invalid jetton");
 
-    if(jettonAddressX == self.jettonAddressA){
+    if (jettonAddressX == self.jettonAddressA) {
       jettonAddressY = self.jettonAddressB;
-    } else if(jettonAddressX == self.jettonAddressB) {
+      yAmount = self.bAmount;
+      xAmount = self.aAmount;
+    } else {
       jettonAddressY = self.jettonAddressA;
+      yAmount = self.aAmount;
+      xAmount = self.bAmount;
     }
     
-    let amountOfXJettonToSend: Int = (xAmount * self.decimal / yAmount) * xAmount / self.decimal;
+    let amountOfYJettonToSend: Int = (yAmount * self.decimal / xAmount) * amountOfTokenXToSwap / self.decimal;
 
     send(SendParameters{
       to: sender(),
