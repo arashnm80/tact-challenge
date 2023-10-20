@@ -112,13 +112,13 @@ contract Task3 with Deployable {
             mode: SendIgnoreErrors, 
             bounce: true,
             body: TokenTransfer{
-                queryId: msg.queryId,
+                queryId: 0,
                 amount: amountOfTokenInToSwap,
                 destination: msg.from,
                 responseDestination: myAddress(),
                 customPayload: null,
                 forwardTonAmount: ton("0.01"),
-                forwardPayload: msg.forwardPayload
+                forwardPayload: emptySlice()
             }.toCell()
             // code: init.code,
             // data: init.data
@@ -131,13 +131,13 @@ contract Task3 with Deployable {
             mode: SendIgnoreErrors, 
             bounce: true,
             body: TokenTransfer{
-                queryId: msg.queryId,
+                queryId: 0,
                 amount: amountOfOutJettonToSend,
                 destination: msg.from,
                 responseDestination: myAddress(),
                 customPayload: null,
                 forwardTonAmount: ton("0.01"),
-                forwardPayload: msg.forwardPayload
+                forwardPayload: emptySlice()
             }.toCell()
             // code: init.code,
             // data: init.data
