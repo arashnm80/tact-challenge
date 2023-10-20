@@ -71,41 +71,60 @@ contract Task3 with Deployable {
     // unknown jetton
     require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "Unknown Jetton.");
 
+    let jettonAddressIn: Address = newAddress(0, 0);
+    let jettonAddressOut: Address = newAddress(0, 0);
+    let inAmount: Int = 0;
+    let outAmount: Int = 0;
+    let amountOfTokenInToSwap: Int = msg.amount;
+    let amountOfOutJettonToSend: Int = 0;
+    let jettonOutPrice: Int = 0;
+
+    // check received jetton's type
+    if(sender() == self.jettonAddressA){
+      self.aAmount = self.aAmount + msg.amount;
+      jettonAddressIn = self.jettonAddressA;
+      jettonAddressOut = self.jettonAddressB;
+      inAmount = self.aAmount;
+      outAmount = self.bAmount;
+    } else {
+      self.bAmount = self.bAmount + msg.amount;
+      jettonAddressIn = self.jettonAddressB;
+      jettonAddressOut = self.jettonAddressA;
+      inAmount = self.bAmount;
+      outAmount = self.aAmount;
+    }
+
     if(msg.from == self.owner){ // message from owner - charge the contract
-      if(sender() == self.jettonAddressA){
-        self.aAmount = self.aAmount + msg.amount;
-      } else {
-        self.bAmount = self.bAmount + msg.amount;
-      }
+        // send(SendParameters{
+        //     to: self.jettonAddressA, 
+        //     value: 0,
+        //     mode: SendIgnoreErrors, 
+        //     bounce: true,
+        //     body: TokenTransfer{
+        //         queryId: 0,
+        //         amount: msg.amount,
+        //         destination: myAddress(),
+        //         responseDestination: myAddress(),
+        //         customPayload: null,
+        //         forwardTonAmount: ton("0.01"),
+        //         forwardPayload: emptySlice()
+        //     }.toCell()
+        //     // code: init.code,
+        //     // data: init.data
+        // });
     } else { // message isn't from owner
-      let jettonAddressIn: Address = newAddress(0, 0);
-      let jettonAddressOut: Address = newAddress(0, 0);
-      let inAmount: Int = 0;
-      let outAmount: Int = 0;
-      let amountOfTokenInToSwap: Int = msg.amount;
-      let amountOfOutJettonToSend: Int = 0;
-      let jettonOutPrice: Int = 0;
 
-      // check received jetton's type
-      if(sender() == self.jettonAddressA){
-        jettonAddressIn = self.jettonAddressA;
-        jettonAddressOut = self.jettonAddressB;
-        inAmount = self.aAmount;
-        outAmount = self.bAmount;
-      } else {
-        jettonAddressIn = self.jettonAddressB;
-        jettonAddressOut = self.jettonAddressA;
-        inAmount = self.bAmount;
-        outAmount = self.aAmount;
-      }
-
-      // B -> A
-      // in -> out
       // calculate how much to send
       jettonOutPrice = outAmount * self.decimal / inAmount;
       amountOfOutJettonToSend = (outAmount * self.decimal / inAmount) * amountOfTokenInToSwap / self.decimal;
 
       if(amountOfOutJettonToSend > outAmount){ // not enough jettons to send
+      
+        if(sender() == self.jettonAddressA){
+          self.aAmount = self.aAmount - amountOfTokenInToSwap;
+        } else {
+          self.bAmount = self.bAmount - amountOfTokenInToSwap;
+        }
         send(SendParameters{
             to: jettonAddressIn, 
             value: 0,
@@ -123,7 +142,14 @@ contract Task3 with Deployable {
             // code: init.code,
             // data: init.data
         });
+
       } else { // there are enough tokens
+
+        if(sender() == self.jettonAddressA){
+          self.bAmount = self.bAmount - amountOfOutJettonToSend;
+        } else {
+          self.aAmount = self.aAmount - amountOfOutJettonToSend;
+        }
         // transfer jettons
         send(SendParameters{
             to: jettonAddressOut, 
@@ -143,6 +169,7 @@ contract Task3 with Deployable {
             // data: init.data
         });
       }
+
     }
   } 
   
