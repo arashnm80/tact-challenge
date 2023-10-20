@@ -68,92 +68,92 @@ contract Task3 with Deployable {
   }
 
   receive(msg: TokenNotification) {
-    // we are doing x->y conversion
-    let jettonAddressX: Address = sender();
-    let amountOfTokenXToSwap: Int = msg.amount;
-    let jettonAddressY: Address = newAddress(0, 0);
-    let xAmount: Int = 0;
-    let yAmount: Int = 0;
+    // unknown jetton
+    require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "Unknown Jetton.");
 
-    // unknown jetton throws error
-    require((jettonAddressX == self.jettonAddressA) || (jettonAddressX == self.jettonAddressB), "invalid jetton");
+    if(msg.from == self.owner){ // message from owner - charge the contract
 
-    if (jettonAddressX == self.jettonAddressA) {
-      // x is A, y is B
-      jettonAddressY = self.jettonAddressB;
-      yAmount = self.bAmount;
-      xAmount = self.aAmount;
-    } else {
-      // x is B, y is A
-      jettonAddressY = self.jettonAddressA;
-      yAmount = self.aAmount;
-      xAmount = self.bAmount;
-    }
-    
-    let amountOfYJettonToSend: Int = (yAmount * self.decimal / xAmount) * amountOfTokenXToSwap / self.decimal;
+    } else { // swap tokens
+      let jettonAddressIn: Address = newAddress(0, 0);
+      let jettonAddressOut: Address = newAddress(0, 0);
+      let inAmount: Int = 0;
+      let outAmount: Int = 0;
+      let amountOfTokenInToSwap: Int = msg.amount;
+      let amountOfOutJettonToSend: Int = 0;
+      let jettonOutPrice: Int = 0;
 
-    if (sender() == self.owner){ // admin is sending jettons
-      send(SendParameters{
-        to: jettonAddressX,
-        value: 0, 
-        mode: SendRemainingValue, 
-        bounce: true, 
-        body: TokenTransfer{ queryId: msg.queryId,
-                              amount: msg.amount,
-                              destination: jettonAddressX,
-                              responseDestination: myAddress(),
-                              customPayload: null,
-                              forwardTonAmount: ton("0.01"),
-                              forwardPayload: emptySlice() }.toCell()
-      });
-    } else { // swap jettons
-      if (yAmount >= amountOfYJettonToSend) { // enough jettons in contract
-        send(SendParameters{
-          to: jettonAddressY,
-          value: 0, 
-          mode: SendRemainingValue, 
-          bounce: true, 
-          body: TokenTransfer{ queryId: msg.queryId,
-                                amount: amountOfYJettonToSend,
-                                destination: msg.from,
-                                responseDestination: myAddress(),
-                                customPayload: null,
-                                forwardTonAmount: ton("0.01"),
-                                forwardPayload: emptySlice() }.toCell()
-        });
-      } else { // jettons are not enough, return back to user
-        send(SendParameters{
-          to: jettonAddressX,
-          value: 0, 
-          mode: SendRemainingValue, 
-          bounce: true, 
-          body: TokenTransfer{ queryId: msg.queryId,
-                                amount: amountOfTokenXToSwap,
-                                destination: msg.from,
-                                responseDestination: myAddress(),
-                                customPayload: null,
-                                forwardTonAmount: ton("0.01"),
-                                forwardPayload: emptySlice() }.toCell()
-        });
+      // check received jetton's type
+      if(sender() == self.jettonAddressA){
+        jettonAddressIn = self.jettonAddressA;
+        jettonAddressOut = self.jettonAddressB;
+        inAmount = self.aAmount;
+        outAmount = self.bAmount;
+      } else {
+        jettonAddressIn = self.jettonAddressB;
+        jettonAddressOut = self.jettonAddressA;
+        inAmount = self.bAmount;
+        outAmount = self.aAmount;
       }
 
+      // B -> A
+      // in -> out
+      // calculate how much to send
+      jettonOutPrice = outAmount * self.decimal / inAmount;
+      amountOfOutJettonToSend = (outAmount * self.decimal / inAmount) * amountOfTokenInToSwap / self.decimal;
+
+      if(amountOfOutJettonToSend > outAmount){ // not enough jettons to send
+        send(SendParameters{
+            to: jettonAddressIn, 
+            value: 0,
+            mode: SendRemainingValue, 
+            bounce: true,
+            body: TokenTransfer{
+                queryId: msg.queryId,
+                amount: amountOfTokenInToSwap,
+                destination: msg.from,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: msg.forwardPayload
+            }.toCell()
+            // code: init.code,
+            // data: init.data
+        });
+      } else { // there are enough tokens
+        // transfer jettons
+        send(SendParameters{
+            to: jettonAddressOut, 
+            value: 0,
+            mode: SendRemainingValue, 
+            bounce: true,
+            body: TokenTransfer{
+                queryId: msg.queryId,
+                amount: amountOfOutJettonToSend,
+                destination: msg.from,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: msg.forwardPayload
+            }.toCell()
+            // code: init.code,
+            // data: init.data
+        });
+      }
     }
   } 
   
   get fun price(jetton: Address): Int { 
     if(jetton == self.jettonAddressA){
-      let aPrice: Int = self.aAmount * self.decimal / self.bAmount;
-      return aPrice;
+      return (self.aAmount * self.decimal / self.bAmount);
     } else {
-      let bPrice: Int = self.bAmount * self.decimal / self.aAmount;
-      return bPrice;
+      return (self.bAmount * self.decimal / self.aAmount);
     }
   }
   
-  get fun balance(jetton: Address): Int { 
+  get fun balance(jetton: Address): Int {
     if(jetton == self.jettonAddressA){
       return self.aAmount;
-    } else{
+    } else {
       return self.bAmount;
     }
   }
