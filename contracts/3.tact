@@ -72,8 +72,12 @@ contract Task3 with Deployable {
     require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "Unknown Jetton.");
 
     if(msg.from == self.owner){ // message from owner - charge the contract
-
-    } else { // swap tokens
+      if(sender() == self.jettonAddressA){
+        self.aAmount = self.aAmount + msg.amount;
+      } else {
+        self.bAmount = self.bAmount + msg.amount;
+      }
+    } else { // message isn't from owner
       let jettonAddressIn: Address = newAddress(0, 0);
       let jettonAddressOut: Address = newAddress(0, 0);
       let inAmount: Int = 0;
